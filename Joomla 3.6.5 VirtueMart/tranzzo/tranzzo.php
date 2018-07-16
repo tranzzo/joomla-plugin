@@ -169,7 +169,7 @@ class plgVmPaymentTranzzo extends vmPSPlugin
 		require_once(__DIR__ . '/TranzzoApi.php');
 
 		$data_response = TranzzoApi::parseDataResponse($data);
-		$order_id = (int)$data_response[TranzzoApi::P_RES_PROV_ORDER_ID];
+		$order_id = (int)$data_response[TranzzoApi::P_RES_PROV_ORDER];
 
 		$q = 'SELECT `virtuemart_paymentmethod_id` FROM `' . $this->_tablename . '` WHERE `virtuemart_order_id`="' . $order_id . '"';
 		$db = JFactory::getDBO();
