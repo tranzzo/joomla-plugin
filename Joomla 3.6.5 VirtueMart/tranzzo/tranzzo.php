@@ -82,30 +82,33 @@ class plgVmPaymentTranzzo extends vmPSPlugin
 		$tranzzo = new TranzzoApi($method->POS_ID, $method->API_KEY, $method->API_SECRET, $method->ENDPOINTS_KEY);
 
 		$params = array();
-		$params[TranzzoApi::P_REQ_SERVER_URL] = JROUTE::_(JURI::root() . "index.php?option=com_virtuemart&view=pluginresponse&task=pluginnotification&on={$this->_getOrderNumber($order)}&pm={$this->_getPaymentMethodId($order)}");
-		$params[TranzzoApi::P_REQ_RESULT_URL] = JRoute::_(JURI::root() . "index.php?option=com_virtuemart&view=orders&layout=details&order_number={$this->_getOrderNumber($order)}&order_pass={$this->_getOrderPass($order)}", false);
-		$params[TranzzoApi::P_REQ_ORDER] = strval($this->_getOrderId($order));
-		$params[TranzzoApi::P_REQ_AMOUNT] = TranzzoApi::amountToDouble($totalInPaymentCurrency['value']);
-		$params[TranzzoApi::P_REQ_CURRENCY] = $currency_code_3;
-		$params[TranzzoApi::P_REQ_DESCRIPTION] = "Order #{$this->_getOrderId($order)}";
+		$tranzzo->setServerUrl(
+				JROUTE::_(JURI::root() . "index.php?option=com_virtuemart&view=pluginresponse&task=pluginnotification&on={$this->_getOrderNumber($order)}&pm={$this->_getPaymentMethodId($order)}")
+		);
+		$tranzzo->setResultUrl(
+				JRoute::_(JURI::root() . "index.php?option=com_virtuemart&view=orders&layout=details&order_number={$this->_getOrderNumber($order)}&order_pass={$this->_getOrderPass($order)}", false)
+		);
+		$tranzzo->setOrderId($this->_getOrderId($order));
+		$tranzzo->setAmount($totalInPaymentCurrency['value']);
+		$tranzzo->setCurrency($currency_code_3);
+		$tranzzo->setDescription("Order #{$this->_getOrderId($order)}");
 
 		if(!empty($order['details']['BT']->virtuemart_user_id))
-			$params[TranzzoApi::P_REQ_CUSTOMER_ID] = strval($order['details']['BT']->virtuemart_user_id);
+			$customer_id = $order['details']['BT']->virtuemart_user_id;
 		else
-			$params[TranzzoApi::P_REQ_CUSTOMER_ID] = !empty($order['details']['BT']->email)? $order['details']['BT']->email : 'unregistered';
+			$customer_id = !empty($order['details']['BT']->email)? $order['details']['BT']->email : 'unregistered';
 
-		$params[TranzzoApi::P_REQ_CUSTOMER_EMAIL] = !empty($order['details']['BT']->email) ? $order['details']['BT']->email : 'unregistered';
+		$tranzzo->setCustomerId($customer_id);
 
-		if(!empty($order['details']['BT']->first_name))
-			$params[TranzzoApi::P_REQ_CUSTOMER_FNAME] = $order['details']['BT']->first_name;
+		$tranzzo->setCustomerEmail($order['details']['BT']->email);
 
-		if(!empty($order['details']['BT']->last_name))
-			$params[TranzzoApi::P_REQ_CUSTOMER_LNAME] = $order['details']['BT']->last_name;
+		$tranzzo->setCustomerFirstName($order['details']['BT']->first_name);
 
-		if(!empty($order['details']['BT']->phone_1))
-			$params[TranzzoApi::P_REQ_CUSTOMER_PHONE] = $order['details']['BT']->phone_1;
+		$tranzzo->setCustomerLastName($order['details']['BT']->last_name);
 
-		$params[TranzzoApi::P_REQ_PRODUCTS] = array();
+		$tranzzo->setCustomerPhone($order['details']['BT']->phone_1);
+
+		$tranzzo->setProducts();
 
 		if(count($order['items']) > 0) {
 			$products = array();
@@ -127,10 +130,10 @@ class plgVmPaymentTranzzo extends vmPSPlugin
 				$products[] = $product;
 			}
 
-			$params[TranzzoApi::P_REQ_PRODUCTS] = $products;
+			$tranzzo->setProducts($products);
 		}
 
-		$response = $tranzzo->createPaymentHosted($params);
+		$response = $tranzzo->createPaymentHosted();
 
 		$html = $this->renderByLayout('post_payment', array(
 				'order_number' => $this->_getOrderNumber($order),
@@ -165,8 +168,8 @@ class plgVmPaymentTranzzo extends vmPSPlugin
 
 		require_once(__DIR__ . '/TranzzoApi.php');
 
-		$data_response = json_decode(TranzzoApi::base64url_decode($data), true);
-		$order_id = (int)$data_response[TranzzoApi::P_REQ_ORDER];
+		$data_response = TranzzoApi::parseDataResponse($data);
+		$order_id = (int)$data_response[TranzzoApi::P_RES_PROV_ORDER_ID];
 
 		$q = 'SELECT `virtuemart_paymentmethod_id` FROM `' . $this->_tablename . '` WHERE `virtuemart_order_id`="' . $order_id . '"';
 		$db = JFactory::getDBO();
@@ -187,7 +190,7 @@ class plgVmPaymentTranzzo extends vmPSPlugin
 			$db2->setQuery($q);
 			$amount_order = TranzzoApi::amountToDouble($db2->loadResult());
 
-			if ($data_response[TranzzoApi::P_RES_RESP_CODE] == 1000 && ($amount_payment == $amount_order)) {
+			if ($data_response[TranzzoApi::P_RES_RESP_CODE] == 1000 && ($amount_payment >= $amount_order)) {
 
 				$modelOrder = VmModel::getModel('orders');
 				$order['order_status'] = $method->status_success;
