@@ -6,64 +6,69 @@ class TranzzoApi
      * https://tranzzo.docs.apiary.io/ The Tranzzo API is an HTTP API served by Tranzzo payment core
      */
     //Common params
-    const P_MODE_HOSTED     = 'hosted';
-    const P_MODE_DIRECT     = 'direct';
-    const P_REQ_CPAY_ID     = 'uuid';
-    const P_REQ_POS_ID      = 'pos_id';
+    const P_MODE_HOSTED = 'hosted';
+    const P_MODE_DIRECT = 'direct';
+    const P_REQ_CPAY_ID = 'uuid';
+    const P_REQ_POS_ID = 'pos_id';
     const P_REQ_ENDPOINT_KEY = 'key';
-    const P_REQ_MODE        = 'mode';
-    const P_REQ_METHOD      = 'method';
-    const P_REQ_AMOUNT      = 'amount';
-    const P_REQ_CURRENCY    = 'currency';
+    const P_REQ_MODE = 'mode';
+    const P_REQ_METHOD = 'method';
+    const P_REQ_AMOUNT = 'amount';
+    const P_REQ_CURRENCY = 'currency';
     const P_REQ_DESCRIPTION = 'description';
-    const P_REQ_ORDER       = 'order_id';
-    const P_REQ_PRODUCTS    = 'products';
-    const P_REQ_ORDER_3DS_BYPASS   = 'order_3ds_bypass';
-    const P_REQ_CC_NUMBER   = 'cc_number';
-    const P_REQ_PAYWAY      = 'payway';
+    const P_REQ_ORDER = 'order_id';
+    const P_REQ_PRODUCTS = 'products';
+    const P_REQ_ORDER_3DS_BYPASS = 'order_3ds_bypass';
+    const P_REQ_CC_NUMBER = 'cc_number';
+    const P_REQ_PAYWAY = 'payway';
+    //new
+    const P_METHOD_PURCHASE = 'purchase';
+    const P_METHOD_AUTH = 'auth';
+    const P_METHOD_CAPTURE = 'capture';
+    //new
+    const P_OPT_PAYLOAD = 'payload';
+    const P_REQ_CUSTOMER_ID = 'customer_id';
+    const P_REQ_CUSTOMER_EMAIL = 'customer_email';
+    const P_REQ_CUSTOMER_FNAME = 'customer_fname';
+    const P_REQ_CUSTOMER_LNAME = 'customer_lname';
+    const P_REQ_CUSTOMER_PHONE = 'customer_phone';
 
-    const P_OPT_PAYLOAD     = 'payload';
+    const P_REQ_SERVER_URL = 'server_url';
+    const P_REQ_RESULT_URL = 'result_url';
 
-    const P_REQ_CUSTOMER_ID     = 'customer_id';
-    const P_REQ_CUSTOMER_EMAIL  = 'customer_email';
-    const P_REQ_CUSTOMER_FNAME  = 'customer_fname';
-    const P_REQ_CUSTOMER_LNAME  = 'customer_lname';
-    const P_REQ_CUSTOMER_PHONE  = 'customer_phone';
-
-    const P_REQ_SERVER_URL  = 'server_url';
-    const P_REQ_RESULT_URL  = 'result_url';
-
-    const P_REQ_SANDBOX     = 'sandbox';
+    const P_REQ_SANDBOX = 'sandbox';
 
     //Response params
-    const P_RES_PROV_ORDER  = 'provider_order_id';
-    const P_RES_PAYMENT_ID  = 'payment_id';
-    const P_RES_TRSACT_ID   = 'transaction_id';
-    const P_RES_STATUS      = 'status';
-    const P_RES_CODE        = 'code';
-    const P_RES_RESP_CODE   = 'response_code';
-    const P_RES_RESP_DESC   = 'response_description';
-    const P_RES_ORDER       = 'order_id';
-    const P_RES_AMOUNT      = 'amount';
-    const P_RES_CURRENCY    = 'currency';
+    const P_RES_PROV_ORDER = 'provider_order_id';
+    const P_RES_PAYMENT_ID = 'payment_id';
+    const P_RES_TRSACT_ID = 'transaction_id';
+    const P_RES_STATUS = 'status';
+    const P_RES_CODE = 'code';
+    const P_RES_RESP_CODE = 'response_code';
+    const P_RES_RESP_DESC = 'response_description';
+    const P_RES_ORDER = 'order_id';
+    const P_RES_AMOUNT = 'amount';
+    const P_RES_CURRENCY = 'currency';
 
-
-
-    const P_TRZ_ST_SUCCESS      = 'success';
-    const P_TRZ_ST_PENDING      = 'pending';
-    const P_TRZ_ST_CANCEL       = 'rejected';
+    const P_TRZ_ST_SUCCESS = 'success';
+    const P_TRZ_ST_PENDING = 'pending';
+    const P_TRZ_ST_CANCEL = 'rejected';
     const P_TRZ_ST_UNSUCCESSFUL = 'unsuccessful';
-    const P_TRZ_ST_ANTIFRAUD    = 'antifraud';
+    const P_TRZ_ST_ANTIFRAUD = 'antifraud';
 
     //Request method
-    const R_METHOD_GET  = 'GET';
+    const R_METHOD_GET = 'GET';
     const R_METHOD_POST = 'POST';
 
     //URI method
-    const U_METHOD_PAYMENT = '/payment';
-    const U_METHOD_POS = '/pos';
-
-
+    const U_METHOD_PAYMENT = 'payment';
+//    const U_METHOD_PAYMENT = '/payment';
+    const U_METHOD_POS = 'pos';
+//    const U_METHOD_POS = '/pos';
+    const U_METHOD_REFUND = 'refund';
+//    const U_METHOD_REFUND = '/refund';
+    const U_METHOD_VOID = 'void';
+    const U_METHOD_CAPTURE = 'capture';
 
     /**
      * @var string
@@ -97,6 +102,10 @@ class TranzzoApi
 
     private $params = array();
 
+    //new
+    private $typePayment;
+    //new
+
     /**
      * Ik_Service_Tranzzo_Api constructor.
      * @param $posId
@@ -104,16 +113,17 @@ class TranzzoApi
      * @param $apiSecret
      * @param $endpointKey
      */
-    public function __construct($posId, $apiKey, $apiSecret, $endpointKey)
+    public function __construct($posId, $apiKey, $apiSecret, $endpointKey, $typePayment)
     {
-        if(empty($posId) || empty($apiKey) || empty($apiSecret) || empty($endpointKey)){
+        self::writeLog('__construct', '');
+        if (empty($posId) || empty($apiKey) || empty($apiSecret) || empty($endpointKey)) {
             self::writeLog('Invalid constructor parameters', '', 'error');
         }
-
         $this->posId = $posId;
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
         $this->endpointsKey = $endpointKey;
+        $this->typePayment = empty($typePayment) ? 'purchase' : 'auth';
     }
 
     public function setServerUrl($value = '')
@@ -143,45 +153,45 @@ class TranzzoApi
 
     public function setDescription($value = '')
     {
-        $this->params[self::P_REQ_DESCRIPTION] = !empty($value)? $value : 'Order payment';
+        $this->params[self::P_REQ_DESCRIPTION] = !empty($value) ? $value : 'Order payment';
     }
 
     public function setCustomerId($value = '')
     {
-        $this->params[self::P_REQ_CUSTOMER_ID] = !empty($value)? strval($value) : 'unregistered';
+        $this->params[self::P_REQ_CUSTOMER_ID] = !empty($value) ? strval($value) : 'unregistered';
     }
 
     public function setCustomerEmail($value = '')
     {
-        $this->params[self::P_REQ_CUSTOMER_EMAIL] = !empty($value)? strval($value) : 'unregistered';
+        $this->params[self::P_REQ_CUSTOMER_EMAIL] = !empty($value) ? strval($value) : 'unregistered';
     }
 
     public function setCustomerFirstName($value = '')
     {
-        if(!empty($value))
+        if (!empty($value))
             $this->params[self::P_REQ_CUSTOMER_FNAME] = $value;
     }
 
     public function setCustomerLastName($value = '')
     {
-        if(!empty($value))
+        if (!empty($value))
             $this->params[self::P_REQ_CUSTOMER_LNAME] = $value;
     }
 
     public function setCustomerPhone($value = '')
     {
-        if(!empty($value))
+        if (!empty($value))
             $this->params[self::P_REQ_CUSTOMER_PHONE] = $value;
     }
 
     public function setProducts($value = array())
     {
-        $this->params[self::P_REQ_PRODUCTS] = is_array($value)? $value : array();
+        $this->params[self::P_REQ_PRODUCTS] = is_array($value) ? $value : array();
     }
 
     public function addProduct($value = array())
     {
-        if(is_array($value) && !empty($value))
+        if (is_array($value) && !empty($value))
             $this->params[self::P_REQ_PRODUCTS][] = $value;
     }
 
@@ -209,10 +219,8 @@ class TranzzoApi
     {
         $this->params[self::P_REQ_METHOD] = 'credit';
         $this->params[self::P_REQ_POS_ID] = $this->posId;
-
         $uri = self::U_METHOD_PAYMENT;
         $this->setHeader('Content-Type:application/json');
-
         return $this->request(self::R_METHOD_POST, $uri);
     }
 
@@ -221,24 +229,68 @@ class TranzzoApi
      */
     public function createPaymentHosted()
     {
+        self::writeLog('createPaymentHosted');
         $this->params[self::P_REQ_POS_ID] = $this->posId;
         $this->params[self::P_REQ_MODE] = self::P_MODE_HOSTED;
-        $this->params[self::P_REQ_METHOD] = 'purchase';
+        //new
+        //$this->params[self::P_REQ_METHOD] = 'purchase';
+        $this->params[self::P_REQ_METHOD] = $this->typePayment;
+        //new
         $this->params[self::P_REQ_ORDER_3DS_BYPASS] = 'supported';
+        $this->setHeader('Accept: application/json');
+        $this->setHeader('Content-Type: application/json');
+        return $this->request(self::R_METHOD_POST, self::U_METHOD_PAYMENT);
+    }
+
+    //new
+    public function createVoid($params = array())
+    {
+        self::writeLog('createVoid');
+        $params[self::P_REQ_POS_ID] = $this->posId;
 
         $this->setHeader('Accept: application/json');
         $this->setHeader('Content-Type: application/json');
 
-        return $this->request(self::R_METHOD_POST, self::U_METHOD_PAYMENT);
+        return $this->request(self::R_METHOD_POST, self::U_METHOD_VOID, $params);
     }
+
+    public function createCapture($params = array())
+    {
+        self::writeLog('createCapture');
+        $params[self::P_REQ_POS_ID] = $this->posId;
+
+        $this->setHeader('Accept: application/json');
+        $this->setHeader('Content-Type: application/json');
+
+        self::writeLog(array('$params' => $params));
+        self::writeLog(array('this ser' => (array)$this));
+        return $this->request(self::R_METHOD_POST, self::U_METHOD_CAPTURE, $params);
+    }
+    //new
+
+    //refund
+    /**
+     * @param $params
+     * @return mixed
+     */
+    public function createRefund($params = array())
+    {
+        self::writeLog('createRefund');
+        $params[self::P_REQ_POS_ID] = $this->posId;
+
+        $this->setHeader('Accept: application/json');
+        $this->setHeader('Content-Type: application/json');
+
+        return $this->request(self::R_METHOD_POST, self::U_METHOD_REFUND, $params);
+    }
+    //refund
 
     /**
      * @return mixed
      */
     public function checkPaymentStatus()
     {
-        $uri = self::U_METHOD_POS. '/' . $this->posId . '/orders/' . $this->params[self::P_REQ_ORDER];
-
+        $uri = self::U_METHOD_POS . '/' . $this->posId . '/orders/' . $this->params[self::P_REQ_ORDER];
         return $this->request(self::R_METHOD_GET, $uri, []);
     }
 
@@ -248,49 +300,40 @@ class TranzzoApi
      */
     private function request($method, $uri, $params = null)
     {
-        $url    = $this->apiUrl . $uri;
-        $params = is_null($params)? $this->params : $params;
-        $data   = json_encode($params);
+        self::writeLog('request', $uri);
+        self::writeLog(array('$params' => $params));
 
-        if(json_last_error()) {
+        //        $url = $this->apiUrl . $uri;
+        $url = $this->apiUrl . '/' . $uri;
+        $params = is_null($params) ? $this->params : $params;
+        $data = json_encode($params);
+        if (json_last_error()) {
             self::writeLog(json_last_error(), 'json_last_error', 'error');
             self::writeLog(json_last_error_msg(), 'json_last_error_msg', 'error');
         }
-
-        $this->setHeader('X-API-Auth: CPAY '.$this->apiKey.':'.$this->apiSecret);
+        $this->setHeader('X-API-Auth: CPAY ' . $this->apiKey . ':' . $this->apiSecret);
         $this->setHeader('X-API-KEY: ' . $this->endpointsKey);
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        if($method === self::R_METHOD_POST){
+        if ($method === self::R_METHOD_POST) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         }
-
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
-
         $server_response = curl_exec($ch);
         $http_code = curl_getinfo($ch);
         $errno = curl_errno($ch);
         curl_close($ch);
-
         // for check request
-//        self::writeLog($url, '', '', 0);
-//        self::writeLog(array('headers' => $this->headers));
-//        self::writeLog(array('params' => $params));
-//
-//        self::writeLog(array("httpcode" => $http_code, "errno" => $errno));
 //        self::writeLog('response', $server_response);
-
-        if(!$errno && empty($server_response))
+        if (!$errno && empty($server_response))
             return $http_code;
         else
-            return ((json_decode($server_response, true))? json_decode($server_response, true) : $server_response);
+            return ((json_decode($server_response, true)) ? json_decode($server_response, true) : $server_response);
     }
 
     /**
@@ -302,11 +345,9 @@ class TranzzoApi
     {
         $signStr = $this->apiSecret . $data . $this->apiSecret;
         $sign = self::base64url_encode(sha1($signStr, true));
-
         if ($requestSign !== $sign) {
             return false;
         }
-
         return true;
     }
 
@@ -316,7 +357,7 @@ class TranzzoApi
      */
     private function createSign($params)
     {
-        $json      = self::base64url_encode( json_encode($params) );
+        $json = self::base64url_encode(json_encode($params));
         $signature = $this->strToSign($this->apiSecret . $json . $this->apiSecret);
         return $signature;
     }
@@ -327,7 +368,7 @@ class TranzzoApi
      */
     private function strToSign($str)
     {
-        return self::base64url_encode(sha1($str,1));
+        return self::base64url_encode(sha1($str, 1));
     }
 
     /**
@@ -338,6 +379,7 @@ class TranzzoApi
     {
         return strtr(base64_encode($data), '+/', '-_');
     }
+
     /**
      * @param $data
      * @return bool|string
@@ -381,7 +423,7 @@ class TranzzoApi
     static function amountToDouble($value = '', $round = null)
     {
         $val = floatval($value);
-        return is_null($round)? round($val, 2) : round($value, (int)$round);
+        return is_null($round) ? round($val, 2) : round($value, (int)$round);
     }
 
     /**
@@ -392,10 +434,13 @@ class TranzzoApi
      */
     static function writeLog($data, $flag = '', $filename = '', $append = true)
     {
-        $filename = !empty($filename)? strval($filename) : basename(__FILE__);
-        file_put_contents(__DIR__ . "/{$filename}.log", "\n\n" . date('H:i:s') . " - $flag \n" .
-            (is_array($data)? json_encode($data, JSON_PRETTY_PRINT):$data)
-            , ($append? FILE_APPEND : 0)
-        );
+        $flag=true;
+        if($flag) {
+            $filename = !empty($filename) ? strval($filename) : basename(__FILE__);
+            file_put_contents(__DIR__ . "/{$filename}.log", "\n\n" . date('H:i:s') . " - $flag \n" .
+                (is_array($data) ? json_encode($data, JSON_PRETTY_PRINT) : $data)
+                , ($append ? FILE_APPEND : 0)
+            );
+        }
     }
 }

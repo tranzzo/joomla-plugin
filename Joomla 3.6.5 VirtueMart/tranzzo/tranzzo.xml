@@ -23,6 +23,9 @@
                 <field name="API_KEY"  type="password" size="50" label="API_KEY" description="API_KEY TRANZZO" default="" />
                 <field name="API_SECRET"  type="password" size="50" label="API_SECRET" description="API_SECRET TRANZZO" default="" />
                 <field name="ENDPOINTS_KEY"  type="password" size="50" label="ENDPOINTS_KEY" description="ENDPOINTS_KEY TRANZZO" default="" />
+                <!-- new -->
+                <field name="TYPE_PAYMENT"  type="checkbox" label="TYPE_PAYMENT" description="TYPE_PAYMENT_DESC" default="" />
+                <!-- new -->
             </fieldset>
 
             <fieldset name="template">
@@ -39,6 +42,16 @@
                        label="VMPAYMENT_TRANZZO_STATUS_SUCCESS_LABEL"
                        description=""
                 />
+                <!-- new -->
+                <field name="status_auth" type="vmorderstate" scope="com_virtuemart" default="P"
+                       label="VMPAYMENT_TRANZZO_STATUS_AUTH_LABEL"
+                       description=""
+                />
+                <field name="status_refund" type="vmorderstate" scope="com_virtuemart" default="R"
+                       label="VMPAYMENT_TRANZZO_STATUS_REFUND_LABEL"
+                       description=""
+                />
+                <!-- new -->
                 <field name="status_failed" type="vmorderstate" scope="com_virtuemart" default="X"
                        label="VMPAYMENT_TRANZZO_STATUS_FAILED_LABEL"
                        description=""
