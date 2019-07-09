@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
+    <name>TRANZZO</name>
+    <creationDate>2018</creationDate>
+    <author>TRANZZO</author>
+    <authorUrl>https://tranzzo.com/</authorUrl>
+    <copyright></copyright>
+    <license></license>
+    <version>1.0</version>
+    <description>TRANZZO payment plugin</description>
+
+    <files>
+        <filename plugin="tranzzo">tranzzo.php</filename>
+        <folder>language</folder>
+        <folder>tranzzo</folder>
+        <filename>TranzzoApi.php</filename>
+    </files>
+
+    <vmconfig>
+        <fields name="params">
+            <fieldset name="top" label="VMPAYMENT_TRANZZO_TOP_LABEL">
+                <field name="POS_ID" type="text" size="50" label="POS_ID" description="POS_ID TRANZZO" default="" />
+                <field name="API_KEY"  type="password" size="50" label="API_KEY" description="API_KEY TRANZZO" default="" />
+                <field name="API_SECRET"  type="password" size="50" label="API_SECRET" description="API_SECRET TRANZZO" default="" />
+                <field name="ENDPOINTS_KEY"  type="password" size="50" label="ENDPOINTS_KEY" description="ENDPOINTS_KEY TRANZZO" default="" />
+                <!-- new -->
+                <field name="TYPE_PAYMENT"  type="checkbox" label="TYPE_PAYMENT" description="TYPE_PAYMENT_DESC" default="" />
+                <!-- new -->
+            </fieldset>
+
+            <fieldset name="template">
+                <field name="payment_logos" type="vmfiles" multiple="false" directory="/images/virtuemart/payment"
+                       hide_none="1" label="VMPAYMENT_TRANZZO_LOGO"
+                       size="40"
+                       description="VMPAYMENT_TRANZZO_LOGO_DESC"
+                       default=""
+                />
+            </fieldset>
+
+            <fieldset name="middle" label="" description="" addfieldpath="/administrator/components/com_virtuemart/fields">
+                <field name="status_success" type="vmorderstate" scope="com_virtuemart" default="C"
+                       label="VMPAYMENT_TRANZZO_STATUS_SUCCESS_LABEL"
+                       description=""
+                />
+                <!-- new -->
+                <field name="status_auth" type="vmorderstate" scope="com_virtuemart" default="P"
+                       label="VMPAYMENT_TRANZZO_STATUS_AUTH_LABEL"
+                       description=""
+                />
+                <field name="status_refund" type="vmorderstate" scope="com_virtuemart" default="R"
+                       label="VMPAYMENT_TRANZZO_STATUS_REFUND_LABEL"
+                       description=""
+                />
+                <!-- new -->
+                <field name="status_failed" type="vmorderstate" scope="com_virtuemart" default="X"
+                       label="VMPAYMENT_TRANZZO_STATUS_FAILED_LABEL"
+                       description=""
+                />
+                <field name="countries" type="vmcountries" scope="com_virtuemart" default="" multiple="true"
+                       label="VMPAYMENT_TRANZZO_COUNTRIES"
+                       description="VMPAYMENT_TRANZZO_COUNTRIES_DESC"
+                />
+            </fieldset>
+        </fields>
+    </vmconfig>
+</extension>
